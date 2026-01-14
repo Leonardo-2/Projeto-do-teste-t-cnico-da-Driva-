@@ -1,0 +1,95 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: driva_postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=driva_user
+      - POSTGRES_PASSWORD=driva_password
+      - POSTGRES_DB=driva_dw
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - driva-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U driva_user -d driva_dw"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: driva_n8n
+    restart: always
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=admin
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=driva_dw
+      - DB_POSTGRESDB_USER=driva_user
+      - DB_POSTGRESDB_PASSWORD=driva_password
+      - N8N_HOST=localhost
+      - WEBHOOK_URL=http://localhost:5678/
+      - GENERIC_TIMEZONE=America/Sao_Paulo
+      - TZ=America/Sao_Paulo
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks:
+      - driva-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    build: 
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: driva_api
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://driva_user:driva_password@postgres:5432/driva_dw
+      - TZ=America/Sao_Paulo
+    networks:
+      - driva-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./api:/app    
+
+  dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    container_name: driva_dashboard
+    restart: always
+    ports:
+      - "8501:8501"
+    environment:
+      - API_URL=http://api:3000
+      - TZ=America/Sao_Paulo
+    networks:
+      - driva-network
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
+  n8n_data:
+
+networks:
+  driva-network:
+    driver: bridge
