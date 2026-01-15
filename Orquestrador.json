@@ -1,0 +1,116 @@
+{
+  "name": "Orquestrador",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            },
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "37d3d042-2fda-41da-9b8a-c0452a995fac",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "pJ3hI9ADeX5iPVrNfa7tl",
+          "mode": "id",
+          "cachedResultUrl": "/workflow/pJ3hI9ADeX5iPVrNfa7tl"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        272,
+        0
+      ],
+      "id": "ca11ce3a-a02f-4163-a72c-ecb10a56852a",
+      "name": "Call 'Ingestão de dados'"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "TvA9Eb7Q5F9ClxqrSaJUO",
+          "mode": "id",
+          "cachedResultUrl": "/workflow/TvA9Eb7Q5F9ClxqrSaJUO"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        512,
+        0
+      ],
+      "id": "1352b76c-3d8b-412e-a107-3837c08512d4",
+      "name": "Call 'Processamento Gold'"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Call 'Ingestão de dados'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'Ingestão de dados'": {
+      "main": [
+        [
+          {
+            "node": "Call 'Processamento Gold'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "babb712e-c770-4c83-bcd7-6141335525db",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "677f5fbb9aeae3496c2b9f92e0d0e4511e8df7f832cce084ce4886fcd653317f"
+  },
+  "id": "ilp2j1LuyyXRnN1Yf35ow",
+  "tags": []
+}
